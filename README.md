@@ -4,6 +4,77 @@ Angular.js styleguide - Both ES5 and ES6 formats - TypeScript  version heavily l
 
 The following is my extremely opinionated view on how one should aim to write highly maintainable Angular.js + JavaScript (or TypeScript) code in teams. The styling sacrifices performance for readability in some cases. Maintainability and readability over everything else. Early optimizations are bad.
 
+## Defining modules
+
+Modules can be defined in multiple ways in Angular.js but in general we'll want to follow functional style as much as possible in addition to the control-flow called "fluent" (you might have heard of fluent interfaces).
+
+### Bad
+
+```js
+var application = angular.module("application", []);
+application.controller(function() {
+
+});
+application.factory(function() {
+
+});
+```
+
+### Good, ES5 and ES6
+
+```js
+angular.module("application", [])
+	.controller()
+	.factory();
+```
+
+
+## Populating Modules
+
+Modules consist of `controllers`, `services`, `factory` and `directive`. Keep the modules in separate files. One module per one file. The functions that make up the module can be located in different files. But a single file should never contain more than one module definition.
+
+### Bad
+
+Often sold and debated over with statements like "you'll get function names in stack traces" and such but that's completely unnecessary as you'll anyway get the file name in the trace that exploded and from there it's extremely simple to track where the actual fault was. Plus your files should never be thousands of lines.
+
+This way also promotes overhead on the top part of the file in a sense that when you start reading it you'll find the module definition at the end of the file and not at the top. So you'll be hopping up and down the file at first before you understand it.
+
+```js
+function MainCtrl () {
+
+}
+
+angular
+  .module("app", [])
+  .controller("testCtrl", MainCtrl);
+```
+### Good, ES5
+
+```js
+angular.module("application", [])
+	.controller("testCtrl", [ "$scope", function($scope) {
+
+	}]);
+```
+
+### Good, ES6
+
+Always prefer using explicitly defined dependencies as they are strings and uglification/minification does not change constant strings. This way the application also works through minification process.
+
+Admitably it does add a bit of overhead but we'll take minification any day.
+
+```js
+angular.module("application", [])
+	.controller("testCtrl", [ "$scope", $scope => {
+
+	}]);
+
+// or with multiple injected deps
+angular.module("application", [])
+	.controller("testCtrl", [ "$scope", "$dialog", ($scope, $dialog) => {
+	}]);
+```
+
 ## Services
 
 Services are instantiated by Angular.js and are in a sense class-like. They should be usable by any other service and component in general. Services can define private functionality to aid functionality. Even though often it's said services are class-like and even I mention it, I prefer to think of them as singleton instances and stateless as possible. This further decouples them from the context and they can be easily tested and understood (pure functions!).
@@ -226,5 +297,3 @@ angular
 	.module("application", [])
 	.directive("fooFocus", [ "FooService", (fooService) => {
 		return {};
-	}]);
-```
