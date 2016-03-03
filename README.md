@@ -1,5 +1,8 @@
 # angular-styleguide
+
 Angular.js styleguide - Both ES5 and ES6 formats - TypeScript  version heavily leans on ES6 with the addition of types.
+
+The following is my extremely opinionated view on how one should aim to write highly maintainable Angular.js + JavaScript (or TypeScript) code in teams. The styling sacrifices performance for readability in some cases. Maintainability and readability over everything else. Early optimizations are bad.
 
 ## Services
 
