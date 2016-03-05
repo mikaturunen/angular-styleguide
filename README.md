@@ -1,4 +1,4 @@
-# angular-styleguide
+# Angular Styleguide
 
 Angular.js styleguide - Both ES5 and ES6 formats - TypeScript  version heavily leans on ES6 with the addition of types.
 
@@ -35,7 +35,7 @@ Modules consist of `controllers`, `services`, `factory` and `directive`. Keep th
 
 ### Bad
 
-Often sold and debated over with statements like "you'll get function names in stack traces" and such but that's completely unnecessary as you'll anyway get the file name in the trace that exploded and from there it's extremely simple to track where the actual fault was. Plus your files should never be thousands of lines.
+Often sold and debated over with statements like "you'll get function names in stack traces" and such but that's completely unnecessary as you'll anyway get the file name in the trace that exploded and from there it's extremely simple to track where the actual fault was. Plus your files should never be thousands of lines. Aaaand like with everything, it'll go through minification anyway so the strack trace with the "named" function doesn't really look any better than it does now. Instead rely heavily on sourcemaps where they are supported.
 
 This way also promotes overhead on the top part of the file in a sense that when you start reading it you'll find the module definition at the end of the file and not at the top. So you'll be hopping up and down the file at first before you understand it.
 
@@ -179,6 +179,7 @@ angular.module("application", [])
 	}]);
 ```
 
+<<<<<<< 02e97a5308ce91efb32a24a2c5eab6a873ca84e4
 ### Good, ES5
 
 Using directive for DOM manipulation, encapsulating the functionality and markup.
@@ -297,3 +298,50 @@ angular
 	.module("application", [])
 	.directive("fooFocus", [ "FooService", (fooService) => {
 		return {};
+=======
+If you are using vanilla JavaScript, you can stop the global namespace pollution with the IIFE wrap pattern, create anon function that calls itself instantly.
+
+```js
+(() => {
+
+	angular.module("application", [])
+		.controller("testCtrl", [ "$scope", "$dialog", ($scope, $dialog) => {
+
+		}])
+		.controller("fooCtrl", [ "$scope", $scope => {
+
+		}]);
+
+})();
+```
+
+Other ways of avoiding this are to use typed super set of JavaScript and wrap it in a namespace or module loader or sorts (AMD.js for example). There are number of ways to avoid this but that's totally a different topic...
+
+## Controllers
+
+NO! I know what you're thinking, for the love of god, please, do not use `ng-controller` logic anywhere. It just wrecks havoc and causes issues here and there. Not a good thing.
+
+In general with angular (obviously not always the case) you should aim for the single page application (SPA) and create the view, route and controller dependencies and use cases through angular router.
+
+```js
+<!-- main.jade => Compiled to HTML. Closing tags = annoying. -->
+div
+    {{ main.someObject }}
+<!-- main.jade -->
+
+<script>
+	// ...
+
+	angular.module('app')
+		.config([ "$routeProvider", ($routeProvider) {
+			$routeProvider.when('/', {
+				templateUrl: 'views/main.html',
+				controller: 'MainCtrl',
+				controllerAs: 'main'
+			});
+		});
+
+	//...
+</script>
+```
+>>>>>>> Minor change.
