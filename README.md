@@ -179,7 +179,6 @@ angular.module("application", [])
 	}]);
 ```
 
-<<<<<<< 02e97a5308ce91efb32a24a2c5eab6a873ca84e4
 ### Good, ES5
 
 Using directive for DOM manipulation, encapsulating the functionality and markup.
@@ -298,7 +297,7 @@ angular
 	.module("application", [])
 	.directive("fooFocus", [ "FooService", (fooService) => {
 		return {};
-=======
+
 If you are using vanilla JavaScript, you can stop the global namespace pollution with the IIFE wrap pattern, create anon function that calls itself instantly.
 
 ```js
@@ -344,4 +343,3 @@ div
 	//...
 </script>
 ```
->>>>>>> Minor change.
