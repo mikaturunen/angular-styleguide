@@ -526,6 +526,10 @@ function TestCtrl ($scope, $rootScope, MyService, AnotherService) {
 
 It's not without its issues, sure, but so far it's one of the most efficient ways to write readable and maintainable Angular.js code in my opinion. It aims to answer the question "where is this defined" as easily as possible and keeps everything in feature-wise locations. It should contain one place for the route definitions, one place that defines all the information what controllers are used where and the HTML should easily answer the "this function call / property is coming from this specific controller". It aims to minimize $watch usage in all cases as it comes with a huge performance cost in bigger applications and avoids all specific scope -magic as that's always causis issue and never really solving any problems.
 
+I think the whole thing aims to be as simple as possible and to the point; for example, encourages dropping out the factory service style completely and instead suggests one should name services based on Features and that the feature naming should already tell the user everything it needs to know about it.
+
+*SIMPLE, MAINTAINABLE, EASY TO READ = GREAT ANGULAR.JS CODE.*
+
 What else? It's open to suggestions and is bound to change when opinions change and better ones come up.
 
 # Additional reading
