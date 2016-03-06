@@ -11,3 +11,8 @@ Not written by me but I draw inspiration from or use directly:
 * https://github.com/airbnb/javascript
 * https://github.com/panuhorsmalahti/typescript-style-guide
 * https://github.com/Microsoft/TypeScript/wiki/Coding-guidelines
+
+Useful links in relation to styling and tooling:
+
+* http://www.jslint.com/
+* http://jscs.info/
