@@ -69,6 +69,8 @@ Always prefer using explicitly defined dependencies as they are strings and ugli
 
 Admitably it does add a bit of overhead but we'll take minification any day.
 
+The best option is to rely on modules like [ng-annonate](https://github.com/olov/ng-annotate), but I won't mention that here. If you want to automate the injection of modules as part of your build chain, look at ng-annonate. I highly recommend it.
+
 ```js
 angular.module("application", [])
 	.controller("testCtrl", [ "$scope", $scope => {
@@ -272,6 +274,14 @@ angular.module("application", [])
 
 Angular has taken over the ng-* prefix and you should prefix your directives with something that differentiates them from the core functionality and don't cause clashing with the potential future updates of Angular. I always suggest using the applications or frameworks domain as the prefix.
 
+Do not prefix anything with the following:
+
+* `ng*`
+* `$`
+* `$$`
+
+These are solely Angular core functionality and you're just calling for trouble if you get mixed in with them.
+
 ### Bad
 
 First version of Angular did not have ng-focus and developers released a lot of modules called 'ng-focus', causing lot of issues once Angular.js team decided to release ng-focus as core functionality of Angular. Obviously this broke all the third party modules. Plus when you are looking information for ng-focus you easily get side tracked to the third party components.
@@ -440,3 +450,75 @@ angular
 # Waiting times
 
 When routes are resolved, it commonly means (with the above resolve patterns) that there are involved loading times and this means the user is waiting. We want to indicate progress somehow. By means of showing a spinner or a loading bar. Angular fires `$routeChangeStart` event when navigation occurs and by listening to this we can show user indication of progress and when Angular fires `$routeChangeSuccess` we can hide the indicators.
+
+# $scope.$watch is route to hell
+
+If you can, avoid $route.$watch. You can almost always avoid this by understanding how Angular works and restructuring your front architecture. Unfortunately there are times that you'll still come face to face with Lucifer and you'll accept the satanic performance cost of $scope.$watch. If you do, here are some tips on how to avoid the biggest issues.
+
+## Idiotic
+
+```js
+<input ng-model="fooModel">
+<script>
+	$scope.$watch("fooModel", callback);
+</script>
+```
+
+## Good
+
+```js
+<input ng-model="fooModel" ng-change="callback">
+
+...
+
+	$scope.callback = function() {
+		// Magic happens here!
+	};
+
+```
+
+# File structuring
+
+One feature, one file. If you have a feature that has services and a controller to it, they all have their individual files.
+
+```
+
+|-- TrackUser
+|---- TrackUserCookiesService.js
+|---- TrackUserHistoryService.js
+|---- TrackUserController.js
+|---- TrackUserDirective.js
+|-- Utility
+|---- UtilityFooService.js
+|---- UtilityBarService.js
+
+
+```
+
+All the external communication and shared functionality is extracted into the services that the controller(s) and directive(s) then can use. Do not have three huge directories that just say `controllers`, `directives` and `services`... That's also a big no-no. It's messy and makes hard to understand what things work with what.
+
+# Order of injections/annonation
+
+When you are injecting content into a module in Angular, you should follow the basic idea of injecting the Angular specific modules first and then your application specific. So Angular's core first and then application specific.
+
+## Bad
+
+```js
+...
+// Random order
+function TestCtrl (TestService, $scope, FooService, $rootScope) {
+
+}
+```
+
+## Good
+
+```js
+...
+// Angular -> application
+function TestCtrl ($scope, $rootScope, MyService, AnotherService) {
+
+}
+```
+
+# Final words
