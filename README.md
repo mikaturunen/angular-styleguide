@@ -417,7 +417,7 @@ angular
 		$routeProvider.when("/", {
 			templateUrl: "test.html",
 			controller: "TestCtrl",
-			// Using controllerAs syntax here allows us to easily identify where the informatiol belongs in the html
+			// Using controllerAs syntax here allows us to easily identify where the information belongs in the html
 			// <div> {{ testCtrl.property }} </div>
 			// This is not required but advocates good readability, so use it
 			controllerAs: "testCtrl",
@@ -426,7 +426,7 @@ angular
 			}
 		});
 	});
-	
+
 ...
 
 angular
@@ -436,3 +436,7 @@ angular
 		this.something = fooService.doSomething;
 	});
 ```
+
+# Waiting times
+
+When routes are resolved, it commonly means (with the above resolve patterns) that there are involved loading times and this means the user is waiting. We want to indicate progress somehow. By means of showing a spinner or a loading bar. Angular fires `$routeChangeStart` event when navigation occurs and by listening to this we can show user indication of progress and when Angular fires `$routeChangeSuccess` we can hide the indicators.
