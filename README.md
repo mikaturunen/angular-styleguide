@@ -8,6 +8,7 @@ Obviously I cannot answer everything that come up but the main lines should be f
 
 Now let's get started.
 
+Oh and on that note: the content is probably contain some typos and issues as I've written it together mostly pretty quickly. So I'll be updating it here and there when new practices emerge and when typos / problems are spotted.
 
 ## Defining modules
 
@@ -522,3 +523,17 @@ function TestCtrl ($scope, $rootScope, MyService, AnotherService) {
 ```
 
 # Final words
+
+It's not without its issues, sure, but so far it's one of the most efficient ways to write readable and maintainable Angular.js code in my opinion. It aims to answer the question "where is this defined" as easily as possible and keeps everything in feature-wise locations. It should contain one place for the route definitions, one place that defines all the information what controllers are used where and the HTML should easily answer the "this function call / property is coming from this specific controller". It aims to minimize $watch usage in all cases as it comes with a huge performance cost in bigger applications and avoids all specific scope -magic as that's always causis issue and never really solving any problems.
+
+What else? It's open to suggestions and is bound to change when opinions change and better ones come up.
+
+# Additional reading
+
+The following links have server as inspiration, points of entry or just in general relate to my interest in guiding lines for coding:
+
+* https://github.com/airbnb/javascript
+* https://github.com/panuhorsmalahti/typescript-style-guide
+* https://toddmotto.com/opinionated-angular-js-styleguide-for-teams/
+* http://www.jslint.com/
+* https://github.com/Microsoft/TypeScript/wiki/Coding-guidelines
