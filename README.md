@@ -1,33 +1,37 @@
 # Angular Styleguide
 
-Angular.js styleguide - Both ES5 and ES6 formats - TypeScript  version heavily leans on ES6 with the addition of types.
+Angular.js styleguide - Both ES5 and ES6 - TypeScript version heavily leans on ES6 with the addition of types.
 
 The following is my extremely opinionated view on how one should aim to write highly maintainable Angular.js + JavaScript (or TypeScript) code in teams. The styling sacrifices performance for readability in some cases. Maintainability and readability over everything else. Early optimizations are bad.
 
+Obviously I cannot answer everything that come up but the main lines should be fairly clear and after that it should be fairly easy to use the main lines on the corner cases too.
+
+Now let's get started.
+
+
 ## Defining modules
 
-Modules can be defined in multiple ways in Angular.js but in general we'll want to follow functional style as much as possible in addition to the control-flow called "fluent" (you might have heard of fluent interfaces).
+Modules can be defined in multiple ways in Angular.js but in general we'll want to follow functional style as much as possible in addition to the [fluent interface](https://en.wikipedia.org/wiki/Fluent_interface) style.
 
 ### Bad
 
+Placing the module into a variable and then separately declaring the modules.
+
 ```js
 var application = angular.module("application", []);
-application.controller(function() {
-
-});
-application.factory(function() {
-
-});
+application.controller( ... );
+application.factory( ... );
 ```
 
 ### Good, ES5 and ES6
 
+Following the fluent interfacing style, just calling the separate functions we want to populate.
+
 ```js
 angular.module("application", [])
-	.controller()
-	.factory();
+	.controller( ... )
+	.factory( ... );
 ```
-
 
 ## Populating Modules
 
@@ -35,18 +39,20 @@ Modules consist of `controllers`, `services`, `factory` and `directive`. Keep th
 
 ### Bad
 
-Often sold and debated over with statements like "you'll get function names in stack traces" and such but that's completely unnecessary as you'll anyway get the file name in the trace that exploded and from there it's extremely simple to track where the actual fault was. Plus your files should never be thousands of lines. Aaaand like with everything, it'll go through minification anyway so the strack trace with the "named" function doesn't really look any better than it does now. Instead rely heavily on sourcemaps where they are supported.
+Often sold and debated over with statements like "you'll get function names in stack traces" and such but that's completely unnecessary as you'll anyway get the file name in the trace that exploded and from there it's extremely simple to track where the actual fault was.
+
+On top of that your files should never be thousands of lines. Aaaand like with everything, it'll go through minification anyway so the strack trace with the "named" function doesn't really look any better than it does now. Instead rely heavily on sourcemaps where they are supported.
 
 This way also promotes overhead on the top part of the file in a sense that when you start reading it you'll find the module definition at the end of the file and not at the top. So you'll be hopping up and down the file at first before you understand it.
 
 ```js
-function MainCtrl () {
+function testCtrl () {
 
 }
 
 angular
-  .module("app", [])
-  .controller("testCtrl", MainCtrl);
+  .module("application", [])
+  .controller("testCtrl", testCtrl);
 ```
 ### Good, ES5
 
@@ -164,17 +170,17 @@ angular.module("application", [])
 
 ## Directives
 
-DOM is purely meant for manipulating the HTML DOM. Essentially any modifications, creation or updates to DOM that needs to be done directly needs to be done inside Directives. All the code that is reusable, both behavior and markup, should be encapsulated and extracted out of the directive.
+Directives are purely meant for manipulating the HTML DOM. Essentially any modifications, creation or updates to DOM that needs to be done directly, needs to be done inside a directives. All the code that is reusable, both behavior and markup, should be encapsulated and extracted out of the directive.
 
 ### Bad
 
-Text book example of modying the DOM from the controller, this is a big no-no!
+Text book example of modifying the DOM from the controller, this is a big no-no!
 
 ```js
 angular.module("application", [])
 	.controller("FooCtrl", [ "FooService", function(fooService) {
-		this.makeActive = function (elem) {
-			elem.addClass('test');
+		this.makeActive = function (element) {
+			element.addClass("test");
 		};
 	}]);
 ```
@@ -200,7 +206,7 @@ angular.module("application", [])
 		}
 
 		return {
-			restruct: "EA",
+			restrict: "EA",
 			link: linker,
 			template: template,
 			// or alternatively for template:
@@ -209,9 +215,26 @@ angular.module("application", [])
 	}]);
 ```
 
+Taking it a bit further with ES6. Leans on same principles as ES5 and goes a bit further.
+
+```js
+angular.module("application", [])
+	.directive("FooDirective", [ "FooService", fooService => {
+		const linker = ($scope, $element, $attrs) => $element.on("click", function () {
+			$(this).addClass("fooify");
+		});
+
+		return {
+			restrict: "EA",
+			link: linker,
+			templateUrl: "FooDirective.html"
+		};
+	}]);
+```
+
 ## Factories
 
-Factories are singleton modules that are commonly used for communication purposes, but in truth there's not much separating the service and factory other than the name. You can use both of them for the same things and the line gets even thinner by the common concensus of "factory is a pattern/implementation" which in turn means that factory should not be part of the modules name but they should be called "services" too naming wise. In fact I strongly suggest you drop the factories out completely and just use Services for everything you would use Factories and Services for. This makes things slightly more easier to understand as you've essentially eliminated one concept out of Angular.js that has no other meaning than just excess fluff around the pointy corners.
+Factories are singleton modules that are commonly used for communication purposes, but in truth there's not much separating the service and factory other than the name. You can use both of them for the same things and the line gets even thinner by the common concensus of "factory is a pattern/implementation" which in turn means that factory should not be part of the modules name but they should be called "services" naming wise. In fact I strongly suggest you drop the factories out completely and just use services for everything you would use Factories and Services for. This makes things slightly more easier to understand as you've essentially eliminated one concept out of Angular.js that has no other meaning than just excess fluff around the pointy corners.
 
 The services should be bound to the feature and it should be commonly obvious from the name of the service what it does so the separation into factories and services is fairly useless.
 
@@ -245,26 +268,9 @@ angular.module("application", [])
 	});
 ```
 
-Taking it a bit further with ES6. Leans on same principles as ES5 and goes a bit further.
-
-```js
-angular.module("application", [])
-	.directive("FooDirective", [ "FooService", fooService => {
-		const linker = ($scope, $element, $attrs) => $element.on("click", function () {
-			$(this).addClass("fooify");
-		});
-
-		return {
-			restruct: "EA",
-			link: linker,
-			templateUrl: "FooDirective.html"
-		};
-	}]);
-```
-
 ## Naming
 
-Angular has taken over the ng-* prefix and you should prefix your directives with something that differentiates them from the core functionality and don't cause clashing with the potential future updates of Angular.
+Angular has taken over the ng-* prefix and you should prefix your directives with something that differentiates them from the core functionality and don't cause clashing with the potential future updates of Angular. I always suggest using the applications or frameworks domain as the prefix.
 
 ### Bad
 
@@ -297,6 +303,10 @@ angular
 	.module("application", [])
 	.directive("fooFocus", [ "FooService", (fooService) => {
 		return {};
+	});
+```
+
+## Global context
 
 If you are using vanilla JavaScript, you can stop the global namespace pollution with the IIFE wrap pattern, create anon function that calls itself instantly.
 
@@ -316,17 +326,19 @@ If you are using vanilla JavaScript, you can stop the global namespace pollution
 
 Other ways of avoiding this are to use typed super set of JavaScript and wrap it in a namespace or module loader or sorts (AMD.js for example). There are number of ways to avoid this but that's totally a different topic...
 
+Ps. I always prefer having a module loader and writing my content to be module loader compatible.
+
 ## Controllers
 
-NO! I know what you're thinking, for the love of god, please, do not use `ng-controller` logic anywhere. It just wrecks havoc and causes issues here and there. Not a good thing.
+NO! I know what you're thinking, for the love of god, please, do not use `ng-controller` logic anywhere. It just wrecks havoc and causes issues here and there (scopes, hard to understand what's going on, there's no single point where things are declared). Not a good thing.
 
-In general with angular (obviously not always the case) you should aim for the single page application (SPA) and create the view, route and controller dependencies and use cases through angular router.
+In general with angular you should heavily lean on the functionality of the $routeProvider to tell Angular what views and controllers go together.
 
 ```js
 <!-- main.jade => Compiled to HTML. Closing tags = annoying. -->
 div
     {{ main.someObject }}
-<!-- main.jade -->
+<!-- /main.jade -->
 
 <script>
 	// ...
@@ -342,4 +354,85 @@ div
 
 	//...
 </script>
+```
+
+When going full single page application behavior with Angular, you want to lean on external modules for additional leverage, like the [de-facto ui-router for Angular.js 1.x](https://github.com/angular-ui/ui-router).
+
+## Async resolution through promises
+
+After creating set of services, you'll be injecting them to other services potentially, controllers and maybe some directives. Essentially the shared functionality will spread around. To keep the contollers clean of the service logic, you want to leverage angular-routers (or ui-router.js') resolve property to resolve the view's promises before the page is served to the user. Controllers are instantiated after the data is available.
+
+## Mediocre
+
+```js
+angular
+	.module("application", [])
+	.controller("TestCtrl", [ "FooService", function(fooService) {
+		var self = this;
+		// unresolved
+		self.something;
+		// resolved asynchronously
+		fooService.doSomething().then(function (response) {
+			self.something = response;
+		});
+	});
+```
+
+## Good, ES5
+
+```js
+angular
+	.module("application", [])
+	.config([ "$routeProvider", function($routeProvider) {
+		$routeProvider.when("/", {
+			templateUrl: "test.html",
+			controller: "TestCtrl",
+			// Using controllerAs syntax here allows us to easily identify where the informatiol belongs in the html
+			// <div> {{ testCtrl.property }} </div>
+			// This is not required but advocates good readability, so use it
+			controllerAs: "testCtrl",
+			resolve: {
+				doSomething: function (fooService) {
+		  			return SomeService.doSomething();
+				}
+			}
+		});
+	});
+...
+
+angular
+	.module("application")
+	.controller("TestCtrl", [ "fooService", function(fooService) {
+  		// resolved!
+		this.something = fooService.doSomething;
+	});
+```
+
+## Good, ES6
+
+```js
+angular
+	.module("application", [])
+	.config([ "$routeProvider", $routeProvider => {
+		$routeProvider.when("/", {
+			templateUrl: "test.html",
+			controller: "TestCtrl",
+			// Using controllerAs syntax here allows us to easily identify where the informatiol belongs in the html
+			// <div> {{ testCtrl.property }} </div>
+			// This is not required but advocates good readability, so use it
+			controllerAs: "testCtrl",
+			resolve: {
+				doSomething: fooService => SomeService.doSomething();
+			}
+		});
+	});
+	
+...
+
+angular
+	.module("application")
+	.controller("TestCtrl", [ "fooService", fooService => {
+  		// resolved!
+		this.something = fooService.doSomething;
+	});
 ```
